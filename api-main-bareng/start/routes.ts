@@ -30,12 +30,22 @@ Route.group(()=>{
   Route.post('/register','AuthsController.register').as('auth.register')
   Route.post('/login','AuthsController.login').as('auth.login')
   Route.post('/otp-confirmation','AuthsController.otp_verification').as('auth.otp-confirmation')
-  
-  Route.resource('venues','VenuesController').apiOnly().middleware({'*':['auth']})
-  Route.resource('venues.fileds','FieldsController').apiOnly().middleware({'*':['auth']})
-  Route.resource('fields.bookings','BookingsController').apiOnly().middleware({'*':['auth']})
+  Route.group(()=>{
+    Route.resource('venues','VenuesController').apiOnly().middleware({
+      store:['owner'],
+      update:['owner'],
+      destroy:['owner']
+    })
+    Route.resource('venues.fileds','FieldsController').apiOnly().middleware({
+      store:['owner'],
+      update:['owner'],
+      destroy:['owner']})
+    Route.resource('fields.bookings','BookingsController').apiOnly()
+    Route.put('/bookings/:id','BookingsController.join').as('bookings.join-unjoin')
+    Route.get('/schedules','BookingsController.schedules').as('bookings.schedules')
+  }).middleware(['auth'])
+  // Route.put('/bookings/:id/unjoin','BookingsController.unjoin').middleware(['auth'])
   // Route.post('/bookings','BookingsController.bookings').middleware(['auth'])
-
 }).prefix('/api/v1')
 
 

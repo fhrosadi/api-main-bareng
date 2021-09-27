@@ -1,6 +1,8 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
 import Booking from 'App/Models/Booking'
 import Field from 'App/Models/Field'
+import User from 'App/Models/User'
 import BookingValidator from 'App/Validators/BookingValidator'
 
 export default class VenuesController {
@@ -8,16 +10,20 @@ export default class VenuesController {
         let bookings = await Booking.query().preload('field',(
             bookingQuery)=>{
                 bookingQuery.select(['name','type'])
+            }).preload('participants',(participantQuery)=>{
+                participantQuery.select(['id','name','email'])
             })
         response.status(200).json({message:'success get booking data',data:bookings})
     }
 
     public async show({params, response}:HttpContextContract){
-        let venue = await Booking.query().where('id',params.id).preload('field',(
+        let booking = await Booking.query().where('id',params.id).preload('field',(
             fieldQuery)=>{
                 fieldQuery.select(['name','type'])
-            }).firstOrFail()
-        return response.status(200).json({message:'success get booking data',data:venue})
+            }).preload('participants',(userQuery)=>{
+                        userQuery.select(['id','name','email'])
+                    }).withCount('participants').firstOrFail()
+        return response.status(200).json({message:'success get booking data',data:booking})
     }
 
     public async store({request,params,response,auth}:HttpContextContract){
@@ -67,15 +73,38 @@ export default class VenuesController {
     public async join({params,auth,response}:HttpContextContract){
         const booking = await Booking.findByOrFail('id',params.id)
         let user = auth.user!
-
-        await booking.related('participants').sync([user.id])
-        return response.ok({message:'success'})
+        const checkJoin = await Database.from('booking_user').where('booking_id',params.id).where(
+            'user_id',user.id).first()
+        if(!checkJoin){
+            await booking.related('participants').attach([user.id])
+            return response.ok({status:'success',data:'successfully join'})
+        }else{
+            await booking.related('participants').detach([user.id])
+            return response.ok({status:'success', data:'successfully unjoin'})
+        }
     }
 
-    public async showForUser({params, response}:HttpContextContract){
-        const booking = await Booking.query().where('id',params.id).preload('participants',(userQuery)=>{
-            userQuery.select(['id','name','email'])
+    // public async unjoin({params,auth,response}:HttpContextContract){
+    //     const booking = await Booking.findByOrFail('id',params.id)
+    //     let user = auth.user!
+
+    //     await booking.related('participants').detach([user.id])
+    //     return response.ok({message:'success unjoin'})
+    // }
+
+    // public async showForUser({params, response}:HttpContextContract){
+    //     const booking = await Booking.query().where('id',params.id).preload('participants',(userQuery)=>{
+    //         userQuery.select(['id','name','email'])
+    //     }).withCount('participants').firstOrFail()
+    //     return response.ok({message:'success',data:booking})
+    // }
+
+    public async schedules({auth, response}:HttpContextContract){
+        const user = auth.user!
+        const userData = await User.query().where('id',user.id).preload('hasBookings',(bookingQuery)=>{
+            bookingQuery.select(['play_date_start','play_date_end'])
         }).firstOrFail()
-        return response.ok({message:'success',data:booking})
+        return response.ok({message:'success',data:userData})
+    }
 }
 

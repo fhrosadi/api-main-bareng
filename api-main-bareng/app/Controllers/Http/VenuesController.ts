@@ -1,47 +1,32 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import VenueValidator from 'App/Validators/VenueValidator'
-// import Database from '@ioc:Adonis/Lucid/Database'
 import Venue from 'App/Models/Venue'
 
 
 export default class VenuesController {
-    public async index({request, response}:HttpContextContract){
-        let venues
-        if(request.qs().name){
-            // venues = await Database.from('venues').select('id','name','phone','address').where('name',request.qs().name)
-            venues = await Venue.findByOrFail('name',request.qs().name)
-        }else{
-            // venues = await Database.from('venues').select('id','name','phone','address')
-            venues = await Venue.all()
-        }
+    public async index({response}:HttpContextContract){
+        let venues = await Venue.query().preload('fields',(fieldQuery)=>{
+            fieldQuery.select(['name','type'])
+        })  
         response.status(200).json({message:'success get venues data',data:venues})
     }
 
     public async show({params, response}:HttpContextContract){
-        // let venue = await Database.from('venues').where('id',params.id).select('id','name','phone','address').firstOrFail()
-        let venue = await Venue.findBy('id',params.id)
+        let venue = await Venue.query().where('id',params.id).preload('fields',(fieldQuery)=>{
+            fieldQuery.select(['name','type'])
+        }).firstOrFail()
         return response.status(200).json({message:'success get venues data',data:venue})
-
     }
 
-    public async store({request,response}:HttpContextContract){
+    public async store({auth,request,response}:HttpContextContract){
         try {
-            await request.validate(VenueValidator)
-            // Query builder
-
-            // await Database.table('venues').returning('id').insert({
-            //     name: request.input('name'),
-            //     phone: request.input('phone'),
-            //     address: request.input('address'),
-            // })
-
-            // ORM
-
+            const user = await auth.user!
+            const payload = await request.validate(VenueValidator)
             let newVenue = new Venue()
-            newVenue.name= request.input('name')
-            newVenue.phone= request.input('phone')
-            newVenue.address= request.input('address')
-            await newVenue.save()
+            newVenue.name= payload.name
+            newVenue.phone= payload.phone
+            newVenue.address= payload.address
+            newVenue.related('owner').associate(user)
             response.ok({message:'stored'})
         } catch (error) {
             response.badRequest({error:error.messages})
@@ -52,11 +37,6 @@ export default class VenuesController {
         try {
             let id = params.id
             await request.validate(VenueValidator)
-            // await Database.from('venues').where('id',id).update({
-            // name: request.input('name'),
-            // phone: request.input('phone'),
-            // address: request.input('address'),
-        // })
             let venue = await Venue.findByOrFail('id',id)
             venue.name= request.input('name')
             venue.phone= request.input('phone')
@@ -71,7 +51,6 @@ export default class VenuesController {
 
     public async destroy({params,response}:HttpContextContract){
         let id = params.id
-        // await Database.from('venues').where('id',id).delete()
 
         let venue = await Venue.findByOrFail('id',id)
         await venue.delete()
