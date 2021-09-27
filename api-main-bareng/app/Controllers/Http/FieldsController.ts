@@ -48,11 +48,7 @@ export default class FieldsController {
         try {
             let id = params.id
             await request.validate(FieldValidator)
-        //     await Database.from('fields').where('id',id).update({
-        //     name: request.input('name'),
-        //     type: request.input('type'),
-        //     venue_id: request.input('venue_id'),
-        // })
+
             let field = await Field.findByOrFail('id',id)
             field.name = request.input('name')
             field.type = request.input('type')

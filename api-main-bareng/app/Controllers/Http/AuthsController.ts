@@ -29,17 +29,7 @@ import Database from '@ioc:Adonis/Lucid/Database'
  * 
  */
 
-/**
- * @swagger
- * /api/v1/login
- *      tags:
- *          - Authentication
- *      summary: Enpoin untuk login
- *      requestBody:
- *          required: true
- *          contents:
- *              application/x-www-form-urlencoded:
- */
+
 
 export default class AuthsController {
     public async register({request,response}:HttpContextContract){

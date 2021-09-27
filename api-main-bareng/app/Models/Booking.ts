@@ -4,6 +4,8 @@ import User from './User'
 import Field from './Field'
 
 export default class Booking extends BaseModel {
+  public serializeExtras = true
+
   @column({ isPrimary: true })
   public id: number
 
