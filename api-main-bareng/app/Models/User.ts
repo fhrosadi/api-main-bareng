@@ -13,6 +13,31 @@ import { RoleUser } from 'Contracts/enums'
 import Booking from './Booking'
 import Venue from './Venue'
 
+/**
+ * @swagger
+ * definitions:
+ *  User:
+ *    type: Object
+ *    properties:
+ *      id:
+ *        type: integer
+ *      name:
+ *        type: string
+ *      email:
+ *        type: string
+ *      password:
+ *        type: string
+ *      role:
+ *        type: string
+ *      is_verified:
+ *        type: boolean
+ *    required:
+ *      - name
+ *      - email
+ *      - password
+ *      - role
+ */
+
 export default class User extends BaseModel {
   @column({ isPrimary: true })
   public id: number

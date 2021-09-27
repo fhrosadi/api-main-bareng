@@ -5,6 +5,41 @@ import { schema,rules } from '@ioc:Adonis/Core/Validator'
 import Mail from '@ioc:Adonis/Addons/Mail'
 import Database from '@ioc:Adonis/Lucid/Database'
 
+/**
+ * @swagger
+ * /api/v1/register:
+ *  post:
+ *      tags:
+ *          - Authentication
+ *      summary: Endpoint untuk mendaftar sebagai pengguna baru
+ *      requestBody:
+ *          required:true
+ *          contenst:
+ *              application/x-www-form-urlencoded:
+ *                  schema:
+ *                      $ref: '@definitions/User'
+ *              application/json:
+ *                  schema:
+ *                      $ref: '@definitions/User'
+ *      response:
+ *          '201':
+ *              description: user created, verify ptp in email
+ *          '422':
+ *              description: request invalid
+ * 
+ */
+
+/**
+ * @swagger
+ * /api/v1/login
+ *      tags:
+ *          - Authentication
+ *      summary: Enpoin untuk login
+ *      requestBody:
+ *          required: true
+ *          contents:
+ *              application/x-www-form-urlencoded:
+ */
 
 export default class AuthsController {
     public async register({request,response}:HttpContextContract){
@@ -22,9 +57,6 @@ export default class AuthsController {
                   .subject('Welcome Onboard!')
                   .htmlView('mail/otp_verification', { name: data.name,otp_code:otp_code })
               })
-          
-
-
             return response.created({status:'registered',data:newUser,message:'Silakan melakukan verifikasi kode OTP'})
         } catch (error) {
             return response.unprocessableEntity({error:error.message})
