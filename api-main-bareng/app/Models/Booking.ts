@@ -1,11 +1,14 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Field from './Field'
 
 export default class Booking extends BaseModel {
   @column({ isPrimary: true })
   public id: number
+
+  @column()
+  public title?: string
 
   @column()
   public play_date_start:DateTime
@@ -26,11 +29,11 @@ export default class Booking extends BaseModel {
   public updatedAt: DateTime
 
   @belongsTo(()=>User)
-  public owner:BelongsTo<typeof User>
+  public bookingOwner:BelongsTo<typeof User>
 
   @belongsTo(()=>Field)
   public field:BelongsTo<typeof Field>
 
-  // @manyToMany(()=>User)
-  // public participants:ManyToMany<typeof User>
+  @manyToMany(()=>User)
+  public participants:ManyToMany<typeof User>
 }

@@ -32,7 +32,8 @@ export default class BookingValidator {
 	]),
 	play_date_end : schema.date({
 		format: 'yyyy-MM-dd HH:mm:ss'
-	})
+	}),
+	title: schema.string.optional()
 
   })
 

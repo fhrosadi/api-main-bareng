@@ -10,16 +10,18 @@ export default class UsersSchema extends BaseSchema {
       table.string('name').notNullable()
       table.string('email', 255).notNullable()
       table.string('password', 180).notNullable()
-      table.enum('type',Object.values(RoleUser)).defaultTo(RoleUser.USER).notNullable()
+      table.boolean('is_verified').defaultTo(false)
+      table.enum('role',Object.values(RoleUser)).defaultTo(RoleUser.USER).notNullable()
       table.string('remember_me_token').nullable()
+ 
 
       /**
        * Uses timestampz for PostgreSQL and DATETIME2 for MSSQL
        */
-      table.timestamp('created_at', { useTz: true }).notNullable()
-      table.timestamp('updated_at', { useTz: true }).notNullable()
+      table.timestamps(true,true)
     })
   }
+
 
   public async down () {
     this.schema.dropTable(this.tableName)

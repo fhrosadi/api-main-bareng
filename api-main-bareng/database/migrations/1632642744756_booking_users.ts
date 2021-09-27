@@ -8,8 +8,7 @@ export default class BookingUser extends BaseSchema {
       table.increments('id')
       table.integer('user_id').unsigned().references('users.id')
       table.integer('booking_id').unsigned().references('bookings.id')
-      table.timestamp('created_at', { useTz: true })
-      table.timestamp('updated_at', { useTz: true })
+      table.timestamps(true,true)
     })
   }
 

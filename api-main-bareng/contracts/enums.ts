@@ -1,5 +1,5 @@
 export enum RoleUser{
-    ADMIN = 'owner',
+    OWNER = 'owner',
     USER = 'user',
 }
 

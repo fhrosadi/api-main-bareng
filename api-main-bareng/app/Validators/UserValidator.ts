@@ -26,9 +26,7 @@ export default class UserValidator {
 	 *    ```
 	 */
   public schema = schema.create({
-	  name:schema.string({},[
-		rules.minLength(6)
-	  ]),
+	  name:schema.string(),
 	  email:schema.string({},[
 		rules.email(),
 		rules.unique({
@@ -37,7 +35,8 @@ export default class UserValidator {
 		})
 	  ]),
 	  password: schema.string({},[
-		  rules.minLength(6)
+		  rules.minLength(6),
+		  rules.confirmed()
 	  ]),
 	  role:schema.enum(Object.values(RoleUser))
 
@@ -51,7 +50,7 @@ export default class UserValidator {
 	 * {
 	 *   'profile.username.required': 'Username is required',
 	 *   'scores.*.number': 'Define scores as valid numbers'
-	 * }
+	 * } 
 	 *
 	 */
   public messages = {
